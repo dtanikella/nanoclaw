@@ -109,6 +109,16 @@ export function materializeContainerJson(agentGroupId: string): ContainerConfig 
 
   const config = configFromDb(row, group);
 
+  const varNames = Object.values(config.mcpServers).flatMap((s) =>
+    Object.values(s.env ?? {})
+      .filter((v) => v.startsWith('$'))
+      .map((v) => v.slice(1)),
+  );
+  if (varNames.length > 0) {
+    const envVars = readEnvFile(varNames);
+    config.mcpServers = resolveSecretRefs(config.mcpServers, envVars);
+  }
+
   const p = path.join(GROUPS_DIR, group.folder, 'container.json');
   const dir = path.dirname(p);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
