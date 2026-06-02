@@ -38,4 +38,7 @@ groups/*
 # Skills system (local per-installation state)
 .nanoclaw/
 
+# Per-machine Claude Code permissions (diverges per install)
+.claude/settings.local.json
+
 agents-sdk-docs
