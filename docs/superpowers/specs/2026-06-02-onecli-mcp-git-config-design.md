@@ -139,16 +139,30 @@ DISCORD_PUBLIC_KEY=
 OBSIDIAN_API_KEY=
 ```
 
+## Save Agent — Remove Direct Obsidian Access
+
+`groups/save/CLAUDE.local.md` currently has the Obsidian API key hardcoded in a `curl` command. Since `CLAUDE.local.md` is being committed to git, this must be fixed before committing.
+
+**Fix:** Remove the direct curl from save agent's instructions. Save agent sends a `CLIPPING_SAVE` message to vault-agent instead. Vault-agent already owns the CLIPPING_SAVE protocol in its `CLAUDE.local.md` and handles the write via the obsidian MCP server. Save agent never touches Obsidian credentials.
+
+Updated save agent flow:
+```
+user message → save agent → formats CLIPPING_SAVE → sends to vault-agent → vault-agent writes via MCP
+```
+
+Save agent replies `✓` after receiving confirmation from vault-agent. This is already the intended architecture — vault-agent's `CLAUDE.local.md` documents the CLIPPING_SAVE protocol it receives from save.
+
 ## Migration (One-Time, Current Machine)
 
 1. Update vault-agent container config: `ncl groups config remove-mcp-server --name obsidian`, then `ncl groups config add-mcp-server` with the same config but `OBSIDIAN_API_KEY` value set to `$OBSIDIAN_API_KEY`
 2. Add `OBSIDIAN_API_KEY=<actual-value>` to `.env`
-3. Update `.gitignore` per above
-4. Write and run `scripts/export-config.ts` → generates `config/db-config.sql`
-5. Write `scripts/restore-config.ts`
-6. Update `.env.example` with placeholders
-7. Commit: `config/db-config.sql`, `groups/*/CLAUDE.local.md`, `groups/vault-agent/obsidian-mcp.ts` + friends, both scripts, updated `.gitignore`, updated `.env.example`
-8. Verify: spawn vault-agent container, confirm Obsidian MCP receives real key from `.env`
+3. Update `groups/save/CLAUDE.local.md` — remove the direct curl block, replace with agent-to-agent delegation to vault-agent using the CLIPPING_SAVE protocol
+4. Update `.gitignore` per above
+5. Write and run `scripts/export-config.ts` → generates `config/db-config.sql`
+6. Write `scripts/restore-config.ts`
+7. Update `.env.example` with placeholders
+8. Commit: `config/db-config.sql`, `groups/*/CLAUDE.local.md`, `groups/vault-agent/obsidian-mcp.ts` + friends, both scripts, updated `.gitignore`, updated `.env.example`
+9. Verify: send a test message to save agent, confirm vault-agent writes the note, confirm no credentials appear in any committed file
 
 ## Files Changed
 
