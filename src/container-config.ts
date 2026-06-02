@@ -15,6 +15,7 @@ import { GROUPS_DIR } from './config.js';
 import { getContainerConfig } from './db/container-configs.js';
 import { getAgentGroup } from './db/agent-groups.js';
 import type { AgentGroup, ContainerConfigRow } from './types.js';
+import { readEnvFile } from './env.js';
 
 export interface McpServerConfig {
   command: string;
@@ -64,6 +65,34 @@ export function configFromDb(row: ContainerConfigRow, group: AgentGroup): Contai
     model: row.model ?? undefined,
     effort: row.effort ?? undefined,
   };
+}
+
+/**
+ * Resolve `$VAR` references in MCP server env blocks using values from .env.
+ * Non-`$` values pass through unchanged. Throws if any $VAR is missing.
+ */
+export function resolveSecretRefs(
+  servers: Record<string, McpServerConfig>,
+  envVars: Record<string, string>,
+): Record<string, McpServerConfig> {
+  return Object.fromEntries(
+    Object.entries(servers).map(([name, server]) => {
+      if (!server.env) return [name, server];
+      const resolvedEnv: Record<string, string> = {};
+      for (const [key, value] of Object.entries(server.env)) {
+        if (!value.startsWith('$')) {
+          resolvedEnv[key] = value;
+          continue;
+        }
+        const varName = value.slice(1);
+        if (!(varName in envVars)) {
+          throw new Error(`MCP server "${name}" references $${varName} but it is not set in .env`);
+        }
+        resolvedEnv[key] = envVars[varName];
+      }
+      return [name, { ...server, env: resolvedEnv }];
+    }),
+  );
 }
 
 /**
