@@ -11,12 +11,15 @@ store/
 data/
 logs/
 
-# Groups - per-installation state, not tracked
-groups/*
+# Groups — ignore derived/ephemeral/build artifacts; track everything else
+groups/*/node_modules/
+groups/*/container.json
+groups/*/CLAUDE.md
+groups/*/.claude-shared.md
+groups/*/.claude-fragments/
+groups/*/conversations/
 
-# Composer-managed CLAUDE.md artifacts (regenerated every spawn) and
-# per-group memory (CLAUDE.local.md) must never be committed.
-**/CLAUDE.local.md
+# Composer-managed shared fragments (regenerated at spawn)
 **/.claude-shared.md
 **/.claude-fragments/
 
