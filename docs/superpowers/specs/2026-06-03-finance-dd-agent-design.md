@@ -75,8 +75,10 @@ All secrets stored in OneCLI vault. The credential proxy injects keys into outbo
 
 **Phase 2 — Report Compilation:**
 5. Agent sends progress message: *"📝 Compiling DD report for AAPL..."*
-6. Agent reads `dd-template.md` and fills `{{PLACEHOLDER}}` values with data from script outputs
+6. Agent reads `dd-template.md` and the compilation prompt from `dd-prompt.md`, then fills `{{PLACEHOLDER}}` values with data from script outputs
 7. Agent sends the final Discord rich embed
+
+**Note:** Both the template (`dd-template.md`) and the compilation prompt (`dd-prompt.md`) live as plain files in `groups/finance-dd/`. This makes it easy to tweak the report format or change how Claude interprets and fills the data — no code changes required, just edit the files and the next `/dd` invocation picks up the changes.
 
 ### Response Time
 
@@ -127,7 +129,9 @@ Buy: {{BUY_COUNT}} | Hold: {{HOLD_COUNT}} | Sell: {{SELL_COUNT}}
 Generated {{TIMESTAMP}} | Sources: FMP, EDGAR, FRED, Yahoo
 ```
 
-CLAUDE.md instructs: *"Fill the template exactly. Do not add, remove, rearrange, or rephrase any section. Only replace `{{PLACEHOLDER}}` values with data from the script outputs."*
+CLAUDE.md instructs: *"Read `dd-prompt.md` for compilation instructions and `dd-template.md` for the output format. Follow both exactly."*
+
+The `dd-prompt.md` file contains the compilation prompt — instructions for how Claude should interpret the fetched data and fill the template (e.g., formatting rules, rounding, what to do with missing fields). Editing this file changes the agent's compilation behavior without touching code or the template itself.
 
 ## Error Handling
 
