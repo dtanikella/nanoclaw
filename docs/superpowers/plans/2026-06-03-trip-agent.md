@@ -53,7 +53,7 @@
 - Create: `groups/trip-agent/trip-src/url-parser.ts`
 - Create: `groups/trip-agent/trip-src/url-parser.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```typescript
 // groups/trip-agent/trip-src/url-parser.test.ts
@@ -140,12 +140,12 @@ describe('extractDomains', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd groups/trip-agent/trip-src && bun test url-parser.test.ts`
 Expected: FAIL — module `./url-parser.js` not found
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 ```typescript
 // groups/trip-agent/trip-src/url-parser.ts
@@ -190,12 +190,12 @@ export function extractDomains(urls: string[]): string[] {
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cd groups/trip-agent/trip-src && bun test url-parser.test.ts`
 Expected: All tests PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add groups/trip-agent/trip-src/url-parser.ts groups/trip-agent/trip-src/url-parser.test.ts
@@ -215,7 +215,7 @@ Refs: #2"
 - Create: `groups/trip-agent/trip-src/sheets.ts`
 - Create: `groups/trip-agent/trip-src/sheets.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 ```typescript
 // groups/trip-agent/trip-src/sheets.test.ts
@@ -257,12 +257,12 @@ describe('formatRow', () => {
 });
 ```
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `cd groups/trip-agent/trip-src && bun test sheets.test.ts`
 Expected: FAIL — module `./sheets.js` not found
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 ```typescript
 // groups/trip-agent/trip-src/sheets.ts
@@ -316,12 +316,12 @@ export async function appendRow(
 }
 ```
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `cd groups/trip-agent/trip-src && bun test sheets.test.ts`
 Expected: `formatRow` tests PASS (the `appendRow` function is integration-tested manually since it requires real credentials)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add groups/trip-agent/trip-src/sheets.ts groups/trip-agent/trip-src/sheets.test.ts
@@ -344,7 +344,7 @@ Refs: #2"
 - Modify: `src/types.ts`
 - Modify: `src/db/container-configs.ts`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```typescript
 // src/db/migrations/016-custom-entrypoint.ts
@@ -360,7 +360,7 @@ export const migration016: Migration = {
 };
 ```
 
-- [ ] **Step 2: Register the migration in the barrel**
+- [x] **Step 2: Register the migration in the barrel**
 
 Modify `src/db/migrations/index.ts` — add import and entry:
 
@@ -372,7 +372,7 @@ import { migration016 } from './016-custom-entrypoint.js';
   migration016,
 ```
 
-- [ ] **Step 3: Add to ContainerConfigRow type**
+- [x] **Step 3: Add to ContainerConfigRow type**
 
 Modify `src/types.ts` — add field to `ContainerConfigRow` (after `cli_scope` on line 27):
 
@@ -380,7 +380,7 @@ Modify `src/types.ts` — add field to `ContainerConfigRow` (after `cli_scope` o
   custom_entrypoint: string | null;
 ```
 
-- [ ] **Step 4: Add to SCALAR_COLUMNS in container-configs.ts**
+- [x] **Step 4: Add to SCALAR_COLUMNS in container-configs.ts**
 
 Modify `src/db/container-configs.ts` line 4-12 — add `'custom_entrypoint'` to the `SCALAR_COLUMNS` set:
 
@@ -397,12 +397,12 @@ const SCALAR_COLUMNS = new Set([
 ]);
 ```
 
-- [ ] **Step 5: Build to verify compilation**
+- [x] **Step 5: Build to verify compilation**
 
 Run: `pnpm run build`
 Expected: Successful compilation with no type errors
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/db/migrations/016-custom-entrypoint.ts src/db/migrations/index.ts src/types.ts src/db/container-configs.ts
@@ -425,7 +425,7 @@ Refs: #2"
 - Modify: `src/container-runner.ts` (line 462)
 - Modify: `src/container-config.ts`
 
-- [ ] **Step 1: Add customEntrypoint to ContainerConfig interface**
+- [x] **Step 1: Add customEntrypoint to ContainerConfig interface**
 
 Modify `src/container-config.ts` — add field to the `ContainerConfig` interface (after `effort?` on line 46):
 
@@ -433,7 +433,7 @@ Modify `src/container-config.ts` — add field to the `ContainerConfig` interfac
   customEntrypoint?: string;
 ```
 
-- [ ] **Step 2: Pass customEntrypoint through configFromDb**
+- [x] **Step 2: Pass customEntrypoint through configFromDb**
 
 Modify `src/container-config.ts` `configFromDb` function — add after the `effort` line in the return object:
 
@@ -441,7 +441,7 @@ Modify `src/container-config.ts` `configFromDb` function — add after the `effo
     customEntrypoint: row.custom_entrypoint ?? undefined,
 ```
 
-- [ ] **Step 3: Use custom entrypoint in container-runner.ts**
+- [x] **Step 3: Use custom entrypoint in container-runner.ts**
 
 Modify `src/container-runner.ts` line 462 — replace the hardcoded entrypoint:
 
@@ -453,17 +453,17 @@ Modify `src/container-runner.ts` line 462 — replace the hardcoded entrypoint:
   args.push('-c', `exec ${entrypoint}`);
 ```
 
-- [ ] **Step 4: Build to verify compilation**
+- [x] **Step 4: Build to verify compilation**
 
 Run: `pnpm run build`
 Expected: Successful compilation
 
-- [ ] **Step 5: Run existing tests**
+- [x] **Step 5: Run existing tests**
 
 Run: `pnpm test`
 Expected: All existing tests pass (the change is backward-compatible — default behavior unchanged)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/container-runner.ts src/container-config.ts
@@ -485,7 +485,7 @@ Refs: #2"
 
 This is the core of the trip agent — a simplified version of the default poll loop that processes messages without calling an LLM.
 
-- [ ] **Step 1: Write the poll loop**
+- [x] **Step 1: Write the poll loop**
 
 ```typescript
 // groups/trip-agent/trip-src/poll-loop.ts
@@ -624,7 +624,7 @@ export async function runTripPollLoop(config: TripConfig): Promise<void> {
 }
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add groups/trip-agent/trip-src/poll-loop.ts
@@ -647,7 +647,7 @@ Refs: #2"
 - Create: `groups/trip-agent/CLAUDE.md`
 - Modify: `.gitignore`
 
-- [ ] **Step 1: Write the entry point**
+- [x] **Step 1: Write the entry point**
 
 ```typescript
 // groups/trip-agent/trip-src/index.ts
@@ -695,7 +695,7 @@ main().catch((err) => {
 });
 ```
 
-- [ ] **Step 2: Create trip-config.json placeholder**
+- [x] **Step 2: Create trip-config.json placeholder**
 
 ```json
 {
@@ -704,7 +704,7 @@ main().catch((err) => {
 }
 ```
 
-- [ ] **Step 3: Create minimal CLAUDE.md**
+- [x] **Step 3: Create minimal CLAUDE.md**
 
 ```markdown
 # Trip Agent
@@ -712,7 +712,7 @@ main().catch((err) => {
 Script-only agent — no LLM. Logs messages to Google Sheets.
 ```
 
-- [ ] **Step 4: Add service-account.json to .gitignore**
+- [x] **Step 4: Add service-account.json to .gitignore**
 
 Add this line to `.gitignore`:
 
@@ -720,7 +720,7 @@ Add this line to `.gitignore`:
 **/service-account.json
 ```
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add groups/trip-agent/trip-src/index.ts groups/trip-agent/trip-config.json groups/trip-agent/CLAUDE.md .gitignore
