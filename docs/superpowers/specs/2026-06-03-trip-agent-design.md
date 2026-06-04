@@ -36,7 +36,7 @@ Discord #trip-channel
   → Host delivery: send reply to Discord channel
 ```
 
-The trip agent uses NanoClaw's container infrastructure (access control, session DB, heartbeat, delivery) but replaces the LLM call entirely. The custom `poll-loop.ts` in `groups/trip-agent/agent-runner-src/` intercepts messages at the same point where the default loop would call `provider.query()`, processes them with pure TypeScript, and writes results to `outbound.db`.
+The trip agent uses NanoClaw's container infrastructure (access control, session DB, heartbeat, delivery) but replaces the LLM call entirely. A new `custom_entrypoint` field on `container_configs` tells the container runner to execute `bun run /workspace/agent/trip-src/index.ts` instead of the default agent-runner. The custom entry point runs a simplified poll loop that processes messages with pure TypeScript and writes results to `outbound.db`.
 
 No Claude API tokens are consumed. No MCP servers are needed.
 
@@ -48,11 +48,13 @@ Handled entirely by NanoClaw's entity model — no custom filtering needed:
 - **`messaging_groups.unknown_sender_policy`**: Set to `request_approval` (default). Messages from non-members are dropped or trigger an approval request.
 - **`canAccessAgentGroup()`** in `src/modules/permissions/access.ts` enforces the gate: owner → global admin → scoped admin → member. Non-members are rejected at the router level, before the message ever reaches the container.
 
-## Agent-Runner Overlay
+## Custom Entrypoint
+
+A new `custom_entrypoint` column on `container_configs` (nullable TEXT) tells the container runner to use a different command instead of the default `bun run /app/src/index.ts`. The trip agent sets this to `bun run /workspace/agent/trip-src/index.ts` — its source files live in the agent group folder at `groups/trip-agent/trip-src/`, which is mounted RW at `/workspace/agent/trip-src/` in the container.
 
 ### Custom Poll Loop (`poll-loop.ts`)
 
-Replaces the default `container/agent-runner/src/poll-loop.ts`. Follows the same contract:
+Simplified version of the default poll loop. Follows the same DB contract:
 
 1. Poll `inbound.db` for pending messages via `getPendingMessages()`
 2. Skip non-trigger messages (same accumulate gate as default: `messages.some(m => m.trigger === 1)`)
@@ -157,8 +159,9 @@ groups/trip-agent/
   CLAUDE.md                 — Minimal (group scaffold requirement)
   trip-config.json          — { "sheetId": "...", "tabName": "..." }
   service-account.json      — Google service account key (gitignored)
-  agent-runner-src/
-    poll-loop.ts            — Custom poll-loop (replaces default, no LLM)
+  trip-src/
+    index.ts                — Entry point: load config, run poll loop
+    poll-loop.ts            — Custom poll-loop (no LLM)
     sheets.ts               — Google Sheets API wrapper
     url-parser.ts           — URL extraction + domain parsing
     url-parser.test.ts      — Unit tests for URL parsing
@@ -168,9 +171,11 @@ groups/trip-agent/
 
 Set via `ncl groups config update`:
 
-- **`provider`**: `"claude"` (required field, but the overlay never invokes it)
-- **`packages`**: `["googleapis"]` — installed in the container image
-- **No MCP servers** — direct API calls from the overlay
+- **`provider`**: `"claude"` (required field, but the custom entrypoint never invokes it)
+- **`custom_entrypoint`**: `"bun run /workspace/agent/trip-src/index.ts"`
+- **`packages_npm`**: `["googleapis"]` — installed in a per-group container image
+- **`cli_scope`**: `"disabled"` — no ncl access needed
+- **No MCP servers** — direct API calls from the trip source
 
 ## Dependencies
 
