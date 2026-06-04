@@ -459,7 +459,11 @@ async function buildContainerArgs(
   const imageTag = containerConfig.imageTag || CONTAINER_IMAGE;
   args.push(imageTag);
 
-  args.push('-c', 'exec bun run /app/src/index.ts');
+  const entrypoint = containerConfig.customEntrypoint || 'bun run /app/src/index.ts';
+  if (!/^[a-zA-Z0-9_ /.\-]+$/.test(entrypoint)) {
+    throw new Error(`Unsafe custom_entrypoint: ${entrypoint}`);
+  }
+  args.push('-c', `exec ${entrypoint}`);
 
   return args;
 }

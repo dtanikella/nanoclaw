@@ -45,3 +45,6 @@ groups/*/conversations/
 .claude/settings.local.json
 
 agents-sdk-docs
+
+# Service account credentials
+**/service-account.json
