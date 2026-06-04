@@ -459,7 +459,8 @@ async function buildContainerArgs(
   const imageTag = containerConfig.imageTag || CONTAINER_IMAGE;
   args.push(imageTag);
 
-  args.push('-c', 'exec bun run /app/src/index.ts');
+  const entrypoint = containerConfig.customEntrypoint || 'bun run /app/src/index.ts';
+  args.push('-c', `exec ${entrypoint}`);
 
   return args;
 }
