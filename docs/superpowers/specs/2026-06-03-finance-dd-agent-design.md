@@ -36,13 +36,16 @@ Claude's role is limited to filling a template with script output data. No free-
 
 | Script | Sources | Data Produced |
 |--------|---------|---------------|
+| **`fetch-all.ts`** | *(orchestrator)* | Calls all scripts below, merges results into a single JSON object. This is the only script Claude needs to invoke. |
 | `fetch-profile.ts` | Yahoo Finance, FMP | Company name, description, sector, industry, market cap, employees |
-| `fetch-financials.ts` | FMP, SEC EDGAR XBRL | Revenue, net income, gross/operating margins, debt/equity, current ratio (TTM + last 4 quarters) |
+| `fetch-financials.ts` | FMP, SEC EDGAR XBRL | Revenue (TTM), net income, gross/operating margins. **Revenue breakdown** by segment/geography. **Expense breakdown** by category (COGS, R&D, SG&A, interest, etc.) |
 | `fetch-valuation.ts` | FMP, Yahoo Finance | P/E, forward P/E, P/S, PEG, EV/EBITDA, sector averages for comparison |
 | `fetch-regulatory.ts` | SEC EDGAR | Recent 10-K, 10-Q, 8-K filings list. Web scraping of enforcement actions page is excluded for v1 but can be added later. |
 | `fetch-industry.ts` | FRED, FMP | Sector macro indicators (GDP by industry, PPI), sector stock performance |
 | `fetch-analysts.ts` | FMP | Consensus price target, buy/hold/sell counts, EPS estimates |
 | `fetch-news.ts` | FMP, SEC EDGAR 8-K | Recent news headlines, material events from 8-K filings |
+
+`fetch-all.ts` runs each sub-script, collects their JSON outputs, and emits a single merged object like `{ profile: {...}, financials: {...}, valuation: {...}, ... }`. If a sub-script fails, its key contains `{ error: "...", warning: true }` so the template can render a fallback. Claude calls only `fetch-all.ts TICKER` — no need to reason about individual scripts.
 
 ### API Key Requirements
 
@@ -67,15 +70,8 @@ All secrets stored in OneCLI vault. The credential proxy injects keys into outbo
 **Phase 1 — Data Fetch:**
 1. Agent validates the ticker format
 2. Agent sends progress message: *"📊 Fetching data for AAPL..."*
-3. Agent runs scripts sequentially:
-   - `fetch-profile.ts AAPL`
-   - `fetch-financials.ts AAPL`
-   - `fetch-valuation.ts AAPL`
-   - `fetch-regulatory.ts AAPL`
-   - `fetch-industry.ts AAPL`
-   - `fetch-analysts.ts AAPL`
-   - `fetch-news.ts AAPL`
-4. Collects all JSON outputs
+3. Agent runs: `fetch-all.ts AAPL` (which internally calls all sub-scripts and merges results)
+4. Receives single merged JSON object
 
 **Phase 2 — Report Compilation:**
 5. Agent sends progress message: *"📝 Compiling DD report for AAPL..."*
@@ -101,7 +97,12 @@ The file `groups/finance-dd/dd-template.md` contains the exact embed layout:
 💰 Financial Health
 Revenue: {{REVENUE_TTM}} (TTM) | Net Income: {{NET_INCOME_TTM}}
 Gross Margin: {{GROSS_MARGIN}} | Operating Margin: {{OPERATING_MARGIN}}
-Debt/Equity: {{DEBT_EQUITY}} | Current Ratio: {{CURRENT_RATIO}}
+
+  Revenue Breakdown:
+{{REVENUE_BREAKDOWN}}
+
+  Expense Breakdown:
+{{EXPENSE_BREAKDOWN}}
 
 📐 Valuation
 P/E: {{PE_RATIO}} (Sector avg: {{SECTOR_PE_AVG}}) | P/S: {{PS_RATIO}}
