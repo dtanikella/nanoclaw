@@ -1,6 +1,22 @@
 import fs from 'fs';
+import { google } from 'googleapis';
+import type { sheets_v4 } from 'googleapis';
 
 const SERVICE_ACCOUNT_PATH = '/workspace/agent/service-account.json';
+
+let cachedClient: sheets_v4.Sheets | null = null;
+
+function getSheetsClient(): sheets_v4.Sheets {
+  if (!cachedClient) {
+    const keyFile = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
+    const auth = new google.auth.GoogleAuth({
+      credentials: keyFile,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    cachedClient = google.sheets({ version: 'v4', auth });
+  }
+  return cachedClient;
+}
 
 /**
  * Format a row for the trip log sheet.
@@ -29,14 +45,7 @@ export async function appendRow(
   tabName: string,
   row: string[],
 ): Promise<void> {
-  const { google } = await import('googleapis');
-  const keyFile = JSON.parse(fs.readFileSync(SERVICE_ACCOUNT_PATH, 'utf8'));
-  const auth = new google.auth.GoogleAuth({
-    credentials: keyFile,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
-
-  const sheets = google.sheets({ version: 'v4', auth });
+  const sheets = getSheetsClient();
 
   await sheets.spreadsheets.values.append({
     spreadsheetId: sheetId,

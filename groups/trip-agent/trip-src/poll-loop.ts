@@ -35,15 +35,12 @@ function generateId(): string {
   return `msg-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function parseContent(json: string): { text?: string; sender?: string } {
+function parseContent(json: string): string {
   try {
     const parsed = JSON.parse(json);
-    return {
-      text: parsed.text || '',
-      sender: parsed.sender || parsed.author?.fullName || parsed.author?.userName || 'Unknown',
-    };
+    return parsed.text || '';
   } catch {
-    return { text: json };
+    return json;
   }
 }
 
@@ -88,8 +85,7 @@ export async function runTripPollLoop(config: TripConfig): Promise<void> {
     const routing = extractRouting(messages);
 
     for (const msg of messages) {
-      const content = parseContent(msg.content);
-      const text = content.text || '';
+      const text = parseContent(msg.content);
 
       // Skip empty messages
       if (!text.trim()) continue;
