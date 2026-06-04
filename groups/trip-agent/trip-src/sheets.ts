@@ -2,6 +2,13 @@ import fs from 'fs';
 import { google } from 'googleapis';
 import type { sheets_v4 } from 'googleapis';
 
+// Bypass the OneCLI HTTPS proxy for googleapis — service account auth requires
+// dynamic JWT signing that the proxy can't handle. Direct connection is safe
+// because the googleapis library manages its own token exchange.
+process.env.NO_PROXY = [process.env.NO_PROXY, '*.googleapis.com', 'accounts.google.com']
+  .filter(Boolean)
+  .join(',');
+
 const SERVICE_ACCOUNT_PATH = '/workspace/agent/service-account.json';
 
 let cachedClient: sheets_v4.Sheets | null = null;
