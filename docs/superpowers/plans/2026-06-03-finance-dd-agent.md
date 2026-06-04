@@ -14,6 +14,30 @@
 
 ---
 
+## Progress
+
+| Task | Title | Status | Notes |
+|------|-------|--------|-------|
+| 1 | Directory structure + shared libs | ✅ Done | `types.ts`, `http.ts`, `format.ts` |
+| 2 | DD template | ✅ Done | `dd-template.md` |
+| 3 | Compilation prompt | ✅ Done | `dd-prompt.md` |
+| 4 | Agent instructions | ✅ Done | `CLAUDE.local.md` |
+| **5** | **ncl wiring** | **⏳ Pending** | **Requires running host. Create agent group + wire to Discord channel.** |
+| 6 | fetch-profile.ts | ✅ Done | FMP profile |
+| 7 | fetch-financials.ts | ✅ Done | FMP income + EDGAR XBRL |
+| 8 | fetch-valuation.ts | ✅ Done | FMP key-metrics + sector PE |
+| 9 | fetch-regulatory.ts | ✅ Done | EDGAR submissions |
+| 10 | fetch-industry.ts | ✅ Done | FRED + FMP sector perf |
+| 11 | fetch-analysts.ts | ✅ Done | FMP consensus |
+| 12 | fetch-news.ts | ✅ Done | FMP news + EDGAR 8-K |
+| 13 | fetch-all.ts | ✅ Done | Orchestrator |
+| **14** | **OneCLI secrets** | **⏳ Pending** | **Requires OneCLI running. Store FMP + FRED API keys.** |
+| **15** | **E2E verification** | **⏳ Pending** | **Requires host + container + Discord. Manual testing.** |
+
+**To resume:** Skip to Task 5 (search for `### Task 5`). All code tasks are complete — only operational wiring and testing remain.
+
+---
+
 ## File Structure
 
 ```
@@ -51,13 +75,13 @@ No new host-side code changes. The agent group is entirely self-contained in `gr
 
 These shared utilities are used by every fetch script. Create them first so all scripts import from the same place.
 
-- [ ] **Step 1: Create the directory structure**
+- [x] **Step 1: Create the directory structure**
 
 ```bash
 mkdir -p groups/finance-dd/scripts/lib
 ```
 
-- [ ] **Step 2: Write `types.ts` — shared type definitions**
+- [x] **Step 2: Write `types.ts` — shared type definitions**
 
 Create `groups/finance-dd/scripts/lib/types.ts`:
 
@@ -177,7 +201,7 @@ export interface DDReport {
 }
 ```
 
-- [ ] **Step 3: Write `http.ts` — shared fetch wrapper**
+- [x] **Step 3: Write `http.ts` — shared fetch wrapper**
 
 Create `groups/finance-dd/scripts/lib/http.ts`:
 
@@ -289,7 +313,7 @@ export async function runScript<T>(fn: () => Promise<T>): Promise<void> {
 }
 ```
 
-- [ ] **Step 4: Write `format.ts` — formatting helpers**
+- [x] **Step 4: Write `format.ts` — formatting helpers**
 
 Create `groups/finance-dd/scripts/lib/format.ts`:
 
@@ -337,7 +361,7 @@ export function formatDate(dateStr: string | null | undefined): string {
 }
 ```
 
-- [ ] **Step 5: Commit shared utilities**
+- [x] **Step 5: Commit shared utilities**
 
 ```bash
 git add groups/finance-dd/scripts/lib/
@@ -360,7 +384,7 @@ Part of #1, #9"
 
 The template contains the exact Discord embed layout with `{{PLACEHOLDER}}` markers that Claude fills with data from script output.
 
-- [ ] **Step 1: Write `dd-template.md`**
+- [x] **Step 1: Write `dd-template.md`**
 
 Create `groups/finance-dd/dd-template.md`:
 
@@ -405,7 +429,7 @@ Buy: {{BUY_COUNT}} | Hold: {{HOLD_COUNT}} | Sell: {{SELL_COUNT}}
 Generated {{TIMESTAMP}} | Sources: FMP, EDGAR, FRED, Yahoo
 ```
 
-- [ ] **Step 2: Commit template**
+- [x] **Step 2: Commit template**
 
 ```bash
 git add groups/finance-dd/dd-template.md
@@ -426,7 +450,7 @@ Part of #1, #8"
 
 This file tells Claude exactly how to fill the template with the fetched data.
 
-- [ ] **Step 1: Write `dd-prompt.md`**
+- [x] **Step 1: Write `dd-prompt.md`**
 
 Create `groups/finance-dd/dd-prompt.md`:
 
@@ -495,7 +519,7 @@ For example, if `data.valuation` has an error, the Valuation section becomes:
 5. **Use the exact emoji and formatting from the template.** Do not change the layout.
 ```
 
-- [ ] **Step 2: Commit compilation prompt**
+- [x] **Step 2: Commit compilation prompt**
 
 ```bash
 git add groups/finance-dd/dd-prompt.md
@@ -517,7 +541,7 @@ Part of #1, #8"
 
 This file defines the agent's behavior: what it responds to, how it runs scripts, and how it delivers the report.
 
-- [ ] **Step 1: Write `CLAUDE.local.md`**
+- [x] **Step 1: Write `CLAUDE.local.md`**
 
 Create `groups/finance-dd/CLAUDE.local.md`:
 
@@ -575,7 +599,7 @@ You are a financial due diligence report generator. You respond ONLY to `/dd TIC
 - Always read `dd-template.md` and `dd-prompt.md` fresh on every invocation (files may be updated).
 ```
 
-- [ ] **Step 2: Commit agent instructions**
+- [x] **Step 2: Commit agent instructions**
 
 ```bash
 git add groups/finance-dd/CLAUDE.local.md
@@ -645,7 +669,7 @@ No file changes. The DB is modified by `ncl`. Proceed to Phase 2.
 
 Fetches company profile from FMP. This is the simplest script and establishes the pattern all others follow.
 
-- [ ] **Step 1: Write `fetch-profile.ts`**
+- [x] **Step 1: Write `fetch-profile.ts`**
 
 Create `groups/finance-dd/scripts/fetch-profile.ts`:
 
@@ -697,7 +721,7 @@ const ticker = requireTicker();
 await runScript(() => fetchProfile(ticker));
 ```
 
-- [ ] **Step 2: Verify it runs (requires FMP_API_KEY)**
+- [x] **Step 2: Verify it runs (requires FMP_API_KEY)**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-profile.ts AAPL | jq .
@@ -705,7 +729,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-profile.ts AAPL 
 
 Expected: JSON with `companyName`, `ticker`, `sector`, `marketCap`, etc.
 
-- [ ] **Step 3: Test invalid ticker**
+- [x] **Step 3: Test invalid ticker**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-profile.ts XYZZY
@@ -713,7 +737,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-profile.ts XYZZY
 
 Expected: Non-zero exit code, error message on stderr.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-profile.ts
@@ -734,7 +758,7 @@ Part of #1, #9"
 
 Fetches income statement from FMP for margins/totals, and SEC EDGAR XBRL for revenue/expense breakdowns.
 
-- [ ] **Step 1: Write `fetch-financials.ts`**
+- [x] **Step 1: Write `fetch-financials.ts`**
 
 Create `groups/finance-dd/scripts/fetch-financials.ts`:
 
@@ -872,7 +896,7 @@ const cik = process.argv[3] || undefined;
 await runScript(() => fetchFinancials(ticker, cik));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-financials.ts AAPL 0000320193 | jq .
@@ -880,7 +904,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-financials.ts AA
 
 Expected: JSON with `revenueTTM`, `netIncomeTTM`, `grossMargin`, `operatingMargin`, `expenseBreakdown`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-financials.ts
@@ -900,7 +924,7 @@ Part of #1, #9"
 **Files:**
 - Create: `groups/finance-dd/scripts/fetch-valuation.ts`
 
-- [ ] **Step 1: Write `fetch-valuation.ts`**
+- [x] **Step 1: Write `fetch-valuation.ts`**
 
 Create `groups/finance-dd/scripts/fetch-valuation.ts`:
 
@@ -983,7 +1007,7 @@ const exchange = process.argv[4] || undefined;
 await runScript(() => fetchValuation(ticker, sector, exchange));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-valuation.ts AAPL Technology NASDAQ | jq .
@@ -991,7 +1015,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-valuation.ts AAP
 
 Expected: JSON with `peRatio`, `psRatio`, `evToEbitda`, `sectorPEAvg`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-valuation.ts
@@ -1011,7 +1035,7 @@ Part of #1, #9"
 **Files:**
 - Create: `groups/finance-dd/scripts/fetch-regulatory.ts`
 
-- [ ] **Step 1: Write `fetch-regulatory.ts`**
+- [x] **Step 1: Write `fetch-regulatory.ts`**
 
 Create `groups/finance-dd/scripts/fetch-regulatory.ts`:
 
@@ -1079,7 +1103,7 @@ const cik = process.argv[3] || undefined;
 await runScript(() => fetchRegulatory(ticker, cik));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && npx tsx scripts/fetch-regulatory.ts AAPL 0000320193 | jq .
@@ -1087,7 +1111,7 @@ cd groups/finance-dd && npx tsx scripts/fetch-regulatory.ts AAPL 0000320193 | jq
 
 Expected: JSON with `recentFilings` array containing 10-K, 10-Q, 8-K entries.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-regulatory.ts
@@ -1106,7 +1130,7 @@ Part of #1, #9"
 **Files:**
 - Create: `groups/finance-dd/scripts/fetch-industry.ts`
 
-- [ ] **Step 1: Write `fetch-industry.ts`**
+- [x] **Step 1: Write `fetch-industry.ts`**
 
 Create `groups/finance-dd/scripts/fetch-industry.ts`:
 
@@ -1220,7 +1244,7 @@ const cik = process.argv[4] || undefined;
 await runScript(() => fetchIndustry(ticker, sector, cik));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && FRED_API_KEY=<key> FMP_API_KEY=<key> npx tsx scripts/fetch-industry.ts AAPL Technology 0000320193 | jq .
@@ -1228,7 +1252,7 @@ cd groups/finance-dd && FRED_API_KEY=<key> FMP_API_KEY=<key> npx tsx scripts/fet
 
 Expected: JSON with `fredIndicators` array, `sectorPerformance`, `riskFactors`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-industry.ts
@@ -1248,7 +1272,7 @@ Part of #1, #9"
 **Files:**
 - Create: `groups/finance-dd/scripts/fetch-analysts.ts`
 
-- [ ] **Step 1: Write `fetch-analysts.ts`**
+- [x] **Step 1: Write `fetch-analysts.ts`**
 
 Create `groups/finance-dd/scripts/fetch-analysts.ts`:
 
@@ -1334,7 +1358,7 @@ const ticker = requireTicker();
 await runScript(() => fetchAnalysts(ticker));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-analysts.ts AAPL | jq .
@@ -1342,7 +1366,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-analysts.ts AAPL
 
 Expected: JSON with `priceTargetConsensus`, `buyCount`, `holdCount`, `sellCount`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-analysts.ts
@@ -1361,7 +1385,7 @@ Part of #1, #9"
 **Files:**
 - Create: `groups/finance-dd/scripts/fetch-news.ts`
 
-- [ ] **Step 1: Write `fetch-news.ts`**
+- [x] **Step 1: Write `fetch-news.ts`**
 
 Create `groups/finance-dd/scripts/fetch-news.ts`:
 
@@ -1453,7 +1477,7 @@ const cik = process.argv[3] || undefined;
 await runScript(() => fetchNews(ticker, cik));
 ```
 
-- [ ] **Step 2: Verify it runs**
+- [x] **Step 2: Verify it runs**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-news.ts AAPL 0000320193 | jq .
@@ -1461,7 +1485,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-news.ts AAPL 000
 
 Expected: JSON with `newsItems` array containing FMP news + EDGAR 8-K entries, sorted by date.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-news.ts
@@ -1482,7 +1506,7 @@ Part of #1, #9"
 
 This is the single script Claude calls. It runs all sub-scripts, passes data between them (e.g., CIK from profile to regulatory), and merges results.
 
-- [ ] **Step 1: Write `fetch-all.ts`**
+- [x] **Step 1: Write `fetch-all.ts`**
 
 Create `groups/finance-dd/scripts/fetch-all.ts`:
 
@@ -1624,7 +1648,7 @@ const ticker = requireTicker();
 await fetchAll(ticker);
 ```
 
-- [ ] **Step 2: Verify it runs end-to-end**
+- [x] **Step 2: Verify it runs end-to-end**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> FRED_API_KEY=<key> npx tsx scripts/fetch-all.ts AAPL | jq .
@@ -1632,7 +1656,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> FRED_API_KEY=<key> npx tsx scripts/fet
 
 Expected: JSON with all 7 keys (`profile`, `financials`, `valuation`, `regulatory`, `industry`, `analysts`, `news`) populated. Some may have `warning: true` if APIs are unavailable.
 
-- [ ] **Step 3: Test invalid ticker**
+- [x] **Step 3: Test invalid ticker**
 
 ```bash
 cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-all.ts XYZZY | jq .
@@ -1640,7 +1664,7 @@ cd groups/finance-dd && FMP_API_KEY=<key> npx tsx scripts/fetch-all.ts XYZZY | j
 
 Expected: JSON where all keys contain `{ "error": "Ticker XYZZY not found", "warning": true }`.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add groups/finance-dd/scripts/fetch-all.ts
