@@ -1,4 +1,4 @@
-import { fetchJSON, edgarURL, requireTicker, runScript } from "./lib/http.ts";
+import { fetchJSON, edgarURL, edgarFetchOptions, requireTicker, runScript } from "./lib/http.ts";
 import type { RegulatoryData, Filing } from "./lib/types.ts";
 
 interface EDGARSubmissions {
@@ -18,7 +18,8 @@ interface EDGARSubmissions {
 async function fetchRegulatory(ticker: string, cik?: string): Promise<RegulatoryData> {
   if (!cik) {
     const tickers = await fetchJSON<Record<string, { cik_str: number; ticker: string }>>(
-      "https://www.sec.gov/files/company_tickers.json"
+      "https://www.sec.gov/files/company_tickers.json",
+      edgarFetchOptions()
     );
     const match = Object.values(tickers).find(
       (t) => t.ticker.toUpperCase() === ticker.toUpperCase()
@@ -29,7 +30,8 @@ async function fetchRegulatory(ticker: string, cik?: string): Promise<Regulatory
 
   const paddedCik = cik.padStart(10, "0");
   const data = await fetchJSON<EDGARSubmissions>(
-    edgarURL(`/submissions/CIK${paddedCik}.json`)
+    edgarURL(`/submissions/CIK${paddedCik}.json`),
+    edgarFetchOptions()
   );
 
   const recent = data.filings.recent;

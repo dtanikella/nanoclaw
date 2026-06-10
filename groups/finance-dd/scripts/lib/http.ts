@@ -1,12 +1,15 @@
 const USER_AGENT = "NanoClaw-FinanceDD/1.0 (github.com/dtanikella/nanoclaw)";
+// SEC EDGAR requires a User-Agent with a real name and email address or it returns 403.
+const EDGAR_USER_AGENT = "Dhananjay Tanikella d.tanikella@gmail.com";
 
 export interface FetchOptions {
   retries?: number;
   retryDelayMs?: number;
   timeoutMs?: number;
+  userAgent?: string;
 }
 
-const defaults: Required<FetchOptions> = {
+const defaults: Required<Omit<FetchOptions, "userAgent">> = {
   retries: 1,
   retryDelayMs: 2000,
   timeoutMs: 15000,
@@ -16,7 +19,7 @@ export async function fetchJSON<T>(
   url: string,
   opts: FetchOptions = {}
 ): Promise<T> {
-  const { retries, retryDelayMs, timeoutMs } = { ...defaults, ...opts };
+  const { retries, retryDelayMs, timeoutMs, userAgent } = { ...defaults, ...opts };
 
   let lastError: Error | null = null;
   for (let attempt = 0; attempt <= retries; attempt++) {
@@ -28,7 +31,7 @@ export async function fetchJSON<T>(
       const timer = setTimeout(() => controller.abort(), timeoutMs);
       const res = await fetch(url, {
         headers: {
-          "User-Agent": USER_AGENT,
+          "User-Agent": userAgent ?? USER_AGENT,
           Accept: "application/json",
         },
         signal: controller.signal,
@@ -73,9 +76,13 @@ export function fredURL(
   return url.toString();
 }
 
-// SEC EDGAR requires descriptive User-Agent, no API key.
+// SEC EDGAR requires a name+email User-Agent — pass edgarFetchOptions() to fetchJSON.
 export function edgarURL(path: string): string {
   return `https://data.sec.gov${path}`;
+}
+
+export function edgarFetchOptions(overrides: FetchOptions = {}): FetchOptions {
+  return { ...overrides, userAgent: EDGAR_USER_AGENT };
 }
 
 export function sleep(ms: number): Promise<void> {
