@@ -51,6 +51,7 @@ A single Markdown document at this path (`docs/superpowers/spikes/2026-06-10-goo
    - Two-DB session protocol compatibility
 7. **Claude vs Goose Comparison** — Feature-by-feature comparison table
 8. **Open Questions** — Specific unknowns requiring further investigation
+9. **References** — All documentation, articles, and resources cited with direct links
 
 ## Success Criteria
 
@@ -63,3 +64,7 @@ A single Markdown document at this path (`docs/superpowers/spikes/2026-06-10-goo
 
 - Goose must be viable to run inside Docker/Apple containers (same as current agent providers)
 - Goose must be adaptable to NanoClaw's two-DB session protocol (`inbound.db` / `outbound.db`)
+
+## References
+
+All documentation, articles, and resources consulted during research will be cited here with direct links. This section will be populated as the spike is executed.
