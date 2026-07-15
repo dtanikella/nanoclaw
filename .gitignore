@@ -44,6 +44,12 @@ groups/*/conversations/
 # Per-machine Claude Code permissions (diverges per install)
 .claude/settings.local.json
 
+# Visual plan / agent-native workspace state (conductor tool output)
+.agent-native/
+
+# Per-group Claude Code config (installation-specific skills, settings)
+groups/*/.claude/
+
 agents-sdk-docs
 
 # Service account credentials
