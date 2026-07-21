@@ -22,7 +22,7 @@ ARG INSTALL_CJK_FONTS=false
 ARG CLAUDE_CODE_VERSION=2.1.154
 ARG AGENT_BROWSER_VERSION=latest
 ARG VERCEL_VERSION=52.2.1
-ARG OPENCODE_VERSION=1.4.17
+ARG OPENCODE_VERSION=1.18.3
 ARG BUN_VERSION=1.3.12
 
 # ---- System dependencies -----------------------------------------------------
@@ -100,9 +100,15 @@ ENV PATH="$PNPM_HOME:$PATH"
 ARG PNPM_VERSION=10.33.0
 RUN corepack enable && corepack prepare pnpm@${PNPM_VERSION} --activate
 
+# Global Node CLIs the agent invokes at runtime live in cli-tools.json so a
+# skill can add one with a json-merge instead of editing this Dockerfile.
+# install-cli-tools.sh installs each via pnpm (pinned), writing the per-tool
+# only-built-dependencies opt-ins it reads from the manifest.
+COPY cli-tools.json install-cli-tools.sh /tmp/
 RUN --mount=type=cache,target=/root/.cache/pnpm \
     echo "only-built-dependencies[]=agent-browser" > /root/.npmrc && \
     echo "only-built-dependencies[]=@anthropic-ai/claude-code" >> /root/.npmrc && \
+    echo "only-built-dependencies[]=opencode-ai" >> /root/.npmrc && \
     pnpm install -g "vercel@${VERCEL_VERSION}"
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
@@ -110,6 +116,7 @@ RUN --mount=type=cache,target=/root/.cache/pnpm \
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
     pnpm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+    sh /tmp/install-cli-tools.sh /tmp/cli-tools.json
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
     pnpm install -g "opencode-ai@${OPENCODE_VERSION}"
