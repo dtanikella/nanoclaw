@@ -28,7 +28,7 @@
 import type Database from 'better-sqlite3';
 import type { Migration } from './index.js';
 
-export const migration016: Migration = {
+export const migration016MessagingGroupInstance: Migration = {
   version: 16,
   name: 'messaging-group-instance',
   disableForeignKeys: true,
