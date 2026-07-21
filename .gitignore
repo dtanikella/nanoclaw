@@ -54,3 +54,10 @@ agents-sdk-docs
 
 # Service account credentials
 **/service-account.json
+.agents
+AGENTS.md
+
+# Internal working docs, never committed
+docs/maintainer-guide.md
+docs/drafts/
+forks.md
