@@ -83,6 +83,27 @@ function wrapPromptWithContext(text: string, systemInstructions?: string): strin
   return out;
 }
 
+/**
+ * Pinned exactly — OpenCode installs config-declared plugins from npm at
+ * runtime (cached under XDG_DATA_HOME), so an unpinned spec would silently
+ * pick up new releases on every fresh session.
+ */
+export const LANGFUSE_PLUGIN_SPEC = '@langfuse/opencode-observability-plugin@0.1.0';
+
+/**
+ * Langfuse tracing via the official OpenCode observability plugin. Active only
+ * when the host injected Langfuse credentials (see src/providers/opencode.ts
+ * on the host side); without keys the config is untouched and OpenCode runs
+ * exactly as before. The plugin reads LANGFUSE_* from process.env itself.
+ */
+export function langfuseConfigFragment(env: Record<string, string | undefined>): Record<string, unknown> {
+  if (!env.LANGFUSE_PUBLIC_KEY || !env.LANGFUSE_SECRET_KEY) return {};
+  return {
+    experimental: { openTelemetry: true },
+    plugin: [LANGFUSE_PLUGIN_SPEC],
+  };
+}
+
 function buildOpenCodeConfig(options: ProviderOptions): Record<string, unknown> {
   const provider = process.env.OPENCODE_PROVIDER || 'anthropic';
   const model = process.env.OPENCODE_MODEL;
@@ -133,6 +154,7 @@ function buildOpenCodeConfig(options: ProviderOptions): Record<string, unknown> 
     provider: providerOptions,
     instructions,
     mcp,
+    ...langfuseConfigFragment(process.env),
   };
 }
 

@@ -233,6 +233,7 @@ function resolveProviderContribution(
     ? fn({
         sessionDir: sessionDir(agentGroup.id, session.id),
         agentGroupId: agentGroup.id,
+        agentGroupName: agentGroup.name,
         hostEnv: process.env,
       })
     : {};

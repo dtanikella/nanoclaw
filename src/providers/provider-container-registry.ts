@@ -27,6 +27,8 @@ export interface ProviderContainerContext {
   sessionDir: string;
   /** Agent group ID, for any per-group logic. */
   agentGroupId: string;
+  /** Human-readable agent group name — for observability labels, not identity. */
+  agentGroupName: string;
   /** `process.env` at spawn time — pull passthrough values from here. */
   hostEnv: NodeJS.ProcessEnv;
 }

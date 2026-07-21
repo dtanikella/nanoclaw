@@ -22,7 +22,7 @@ ARG INSTALL_CJK_FONTS=false
 ARG CLAUDE_CODE_VERSION=2.1.154
 ARG AGENT_BROWSER_VERSION=latest
 ARG VERCEL_VERSION=52.2.1
-ARG OPENCODE_VERSION=1.4.17
+ARG OPENCODE_VERSION=1.18.3
 ARG BUN_VERSION=1.3.12
 
 # ---- System dependencies -----------------------------------------------------
