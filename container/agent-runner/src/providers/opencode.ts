@@ -3,6 +3,7 @@ import { spawn, type ChildProcess } from 'child_process';
 import { createOpencodeClient, type OpencodeClient } from '@opencode-ai/sdk';
 
 import { registerProvider } from './provider-registry.js';
+import type { MemorySessionHookRegistration } from '../memory/session-hook.js';
 import type { AgentProvider, AgentQuery, ProviderEvent, ProviderOptions, QueryInput } from './types.js';
 import { mcpServersToOpenCodeConfig } from './mcp-to-opencode.js';
 
@@ -239,6 +240,11 @@ export class OpenCodeProvider implements AgentProvider {
 
   constructor(options: ProviderOptions = {}) {
     this.options = options;
+  }
+
+  registerMemorySessionHook(_hook: MemorySessionHookRegistration): void {
+    // OpenCode loads memory through its native instructions pipeline; no
+    // Claude-style settings.json hook is needed.
   }
 
   isSessionInvalid(err: unknown): boolean {

@@ -87,6 +87,9 @@ set -euo pipefail
 
 DEPLOY_PATH="$1"
 
+# Ensure common tool paths are available in non-interactive SSH sessions.
+export PATH="/opt/homebrew/bin:/usr/local/bin:$HOME/.local/share/pnpm:$HOME/.npm-global/bin:$HOME/.cargo/bin:$PATH"
+
 # ─── remote output helpers ───────────────────────────────────────────────────
 
 use_ansi() { [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; }
