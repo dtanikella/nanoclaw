@@ -3,7 +3,8 @@ import { spawn, type ChildProcess } from 'child_process';
 import { createOpencodeClient, type OpencodeClient } from '@opencode-ai/sdk';
 
 import { registerProvider } from './provider-registry.js';
-import type { AgentProvider, AgentQuery, MemorySessionHookRegistration, ProviderEvent, ProviderOptions, QueryInput } from './types.js';
+import type { MemorySessionHookRegistration } from '../memory/session-hook.js';
+import type { AgentProvider, AgentQuery, ProviderEvent, ProviderOptions, QueryInput } from './types.js';
 import { mcpServersToOpenCodeConfig } from './mcp-to-opencode.js';
 
 function log(msg: string): void {
@@ -242,8 +243,8 @@ export class OpenCodeProvider implements AgentProvider {
   }
 
   registerMemorySessionHook(_hook: MemorySessionHookRegistration): void {
-    // OpenCode does not yet expose a session-start hook mechanism comparable to
-    // Claude Code's; memory context is injected via instructions instead.
+    // OpenCode loads memory through its native instructions pipeline; no
+    // Claude-style settings.json hook is needed.
   }
 
   isSessionInvalid(err: unknown): boolean {
