@@ -16,8 +16,8 @@
 #
 # Steps performed on the server:
 #   1. git pull (fast-forward only, fails if diverged)
-#   2. pnpm install --frozen-lockfile
-#   3. pnpm build
+#   2. corepack pnpm install --frozen-lockfile
+#   3. corepack pnpm build
 #   4. launchctl kickstart -k gui/501/com.nanoclaw  (macOS)
 #      or: systemctl --user restart nanoclaw         (Linux)
 
@@ -119,23 +119,23 @@ else
   exit 1
 fi
 
-# ─── 2. pnpm install --frozen-lockfile ───────────────────────────────────────
+# ─── 2. corepack pnpm install --frozen-lockfile ───────────────────────────────────────
 
 step_info "Installing dependencies…"
-if pnpm install --frozen-lockfile 2>&1; then
+if corepack pnpm install --frozen-lockfile 2>&1; then
   step_ok "Dependencies installed"
 else
   step_fail "pnpm install failed"
   exit 1
 fi
 
-# ─── 3. pnpm build ───────────────────────────────────────────────────────────
+# ─── 3. corepack pnpm build ───────────────────────────────────────────────────────────
 
 step_info "Building…"
-if pnpm build 2>&1; then
+if corepack pnpm build 2>&1; then
   step_ok "Build complete"
 else
-  step_fail "pnpm build failed"
+  step_fail "corepack pnpm build failed"
   exit 1
 fi
 

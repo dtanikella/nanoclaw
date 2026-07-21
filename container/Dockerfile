@@ -109,17 +109,17 @@ RUN --mount=type=cache,target=/root/.cache/pnpm \
     echo "only-built-dependencies[]=agent-browser" > /root/.npmrc && \
     echo "only-built-dependencies[]=@anthropic-ai/claude-code" >> /root/.npmrc && \
     echo "only-built-dependencies[]=opencode-ai" >> /root/.npmrc && \
-    pnpm install -g "vercel@${VERCEL_VERSION}"
+    pnpm install -g --allow-build=vercel "vercel@${VERCEL_VERSION}"
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
-    pnpm install -g "agent-browser@${AGENT_BROWSER_VERSION}"
+    pnpm install -g --allow-build=agent-browser "agent-browser@${AGENT_BROWSER_VERSION}"
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
-    pnpm install -g "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}"
+    pnpm install -g --allow-build=@anthropic-ai/claude-code "@anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}" && \
     sh /tmp/install-cli-tools.sh /tmp/cli-tools.json
 
 RUN --mount=type=cache,target=/root/.cache/pnpm \
-    pnpm install -g "opencode-ai@${OPENCODE_VERSION}"
+    pnpm install -g --allow-build=opencode-ai "opencode-ai@${OPENCODE_VERSION}"
 
 # ---- ncl CLI wrapper ----------------------------------------------------------
 # Actual script lives in the mounted source at /app/src/cli/ncl.ts.
