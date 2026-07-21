@@ -54,6 +54,7 @@ agents-sdk-docs
 
 # Service account credentials
 **/service-account.json
+
 .agents
 AGENTS.md
 
@@ -61,3 +62,8 @@ AGENTS.md
 docs/maintainer-guide.md
 docs/drafts/
 forks.md
+
+# Riptide artifacts (cloud-synced)
+.humanlayer/tasks/
+# HumanLayer local workspace overrides
+.humanlayer/workspace.local.json
