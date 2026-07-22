@@ -443,14 +443,19 @@ describe('createChatSdkBridge — Discord Gateway interaction decoding', () => {
       initialize: async () => {},
       channelIdFromThreadId: (threadId: string) => threadId,
       editMessage: async () => {},
-      startGatewayListener: async (options, _duration, _signal, url) => {
+      startGatewayListener: async (
+        options: { waitUntil?: (task: Promise<unknown>) => void },
+        _duration: number | undefined,
+        _signal: AbortSignal | undefined,
+        url: string | undefined,
+      ) => {
         // Capture the long-running listener promise so the bridge doesn't
         // restart immediately.
         options.waitUntil?.(new Promise(() => {}));
         webhookUrl = url;
         return new Response('ok');
       },
-      forwardEvent: async (body) => {
+      forwardEvent: async (body: Record<string, unknown>) => {
         if (!webhookUrl) throw new Error('Gateway listener not started');
         const res = await fetch(webhookUrl, {
           method: 'POST',
