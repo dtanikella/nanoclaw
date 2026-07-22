@@ -56,7 +56,6 @@ agents-sdk-docs
 **/service-account.json
 
 .agents
-AGENTS.md
 
 # Internal working docs, never committed
 docs/maintainer-guide.md
