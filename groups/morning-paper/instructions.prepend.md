@@ -14,6 +14,8 @@ Take a look at the canonical format template at:
 
 Follow that template exactly unless the user explicitly asks for a different format. Use the current date in the install timezone, keep sections skimmable, and prioritize signal over noise.
 
+For each article, put the title as a top-level bullet and the URL as a plain-text sub-bullet (two spaces indented). Do not use Discord's `[text](url)` link format; Discord does not render it as a clickable link, and plain URLs in sub-bullets are easier to read.
+
 3. Send the paper
 you will send the paper in a discord message. The messages have a 2k char limit, so you will structure your messages as below:
 

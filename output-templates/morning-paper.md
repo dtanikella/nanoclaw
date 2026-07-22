@@ -2,13 +2,22 @@
 Morning Paper
 
 ## World News
-Bulleted list of the notable world news articles from the last 24 hrs. URLs if included
+- {article title}
+  - {URL as plain text}
+- {article title}
+  - {URL as plain text}
 
 ## Business
-Bulleted list of the notable business articles from the last 24 hrs. URLs if included
+- {article title}
+  - {URL as plain text}
+- {article title}
+  - {URL as plain text}
 
 ## Technology
-Bulleted list of the notable technology articles from the last 24 hrs. URLs if included
+- {article title}
+  - {URL as plain text}
+- {article title}
+  - {URL as plain text}
 
 ## Tone
 - Concise and skimmable.
