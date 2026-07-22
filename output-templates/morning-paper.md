@@ -1,29 +1,16 @@
-# Morning Paper
+# <YYYY/MM/DD, weekday>
+Morning Paper
 
-Use this format for the daily morning paper summary.
+## World News
+Bulleted list of the notable world news articles from the last 24 hrs. URLs if included
 
-## Header
+## Business
+Bulleted list of the notable business articles from the last 24 hrs. URLs if included
 
-- **Date:** <YYYY-MM-DD, weekday>
-- **Edition:** Morning Paper
-- **Prepared by:** NanoClaw
-
-## Sections
-
-### 1. Overnight highlights
-3-5 bullet points of the most important things that happened since the previous evening.
-
-### 2. Today's priorities
-A short ranked list of what deserves attention today, with one sentence of context each.
-
-### 3. Reading list
-2-4 links or documents worth reading, each with a one-line summary.
-
-### 4. Calendar snapshot
-Any notable meetings or deadlines today, in local time.
+## Technology
+Bulleted list of the notable technology articles from the last 24 hrs. URLs if included
 
 ## Tone
-
 - Concise and skimmable.
 - No play-by-play; focus on what matters.
 - Assume the reader has 2 minutes.
