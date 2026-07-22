@@ -421,3 +421,138 @@ describe('createChatSdkBridge.deliver — display cards (send_card)', () => {
     expect(msg.markdown).toBe('plain hello');
   });
 });
+
+describe('createChatSdkBridge — Discord Gateway interaction decoding', () => {
+  beforeEach(async () => {
+    const { initTestDb } = await import('../db/connection.js');
+    const { runMigrations } = await import('../db/migrations/index.js');
+    runMigrations(initTestDb());
+  });
+
+  afterEach(async () => {
+    const { closeDb } = await import('../db/connection.js');
+    closeDb();
+  });
+
+  function makeGatewayAdapter(): Adapter & {
+    forwardEvent(body: Record<string, unknown>): Promise<void>;
+  } {
+    let webhookUrl: string | undefined;
+    return {
+      name: 'discord',
+      initialize: async () => {},
+      channelIdFromThreadId: (threadId: string) => threadId,
+      editMessage: async () => {},
+      startGatewayListener: async (options, _duration, _signal, url) => {
+        // Capture the long-running listener promise so the bridge doesn't
+        // restart immediately.
+        options.waitUntil?.(new Promise(() => {}));
+        webhookUrl = url;
+        return new Response('ok');
+      },
+      forwardEvent: async (body) => {
+        if (!webhookUrl) throw new Error('Gateway listener not started');
+        const res = await fetch(webhookUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error(`forward failed: ${res.status}`);
+      },
+    } as never;
+  }
+
+  function makeInteraction(customId: string): Record<string, unknown> {
+    return {
+      type: 'GATEWAY_INTERACTION_CREATE',
+      data: {
+        type: 3,
+        id: 'interaction-1',
+        token: 'token-1',
+        channel_id: 'chan-1',
+        guild_id: 'guild-1',
+        user: { id: 'user-1', username: 'admin' },
+        message: { id: 'msg-1', embeds: [{ title: 'Approval needed', description: 'Allow?' }] },
+        data: { custom_id: customId },
+      },
+    };
+  }
+
+  it('decodes an index-encoded Approve button back to value "approve"', async () => {
+    const { createAgentGroup } = await import('../db/agent-groups.js');
+    const { createSession, createPendingApproval } = await import('../db/sessions.js');
+    const now = new Date().toISOString();
+    createAgentGroup({ id: 'ag-1', name: 'Agent', folder: 'agent', agent_provider: null, created_at: now });
+    createSession({
+      id: 'sess-1',
+      agent_group_id: 'ag-1',
+      messaging_group_id: null,
+      thread_id: null,
+      agent_provider: null,
+      status: 'active',
+      container_status: 'stopped',
+      last_active: now,
+      created_at: now,
+    });
+    createPendingApproval({
+      approval_id: 'appr-1',
+      request_id: 'appr-1',
+      session_id: 'sess-1',
+      action: 'cli_command',
+      payload: '{}',
+      created_at: now,
+      title: 'CLI: groups-create',
+      options_json: JSON.stringify([
+        { label: 'Approve', selectedLabel: 'Approved', value: 'approve', style: 'primary' },
+        { label: 'Reject', selectedLabel: 'Rejected', value: 'reject', style: 'danger' },
+        { label: 'Reject with reason…', selectedLabel: 'Rejected (awaiting reason)', value: 'reject_with_reason' },
+      ]),
+    });
+
+    const adapter = makeGatewayAdapter();
+    const actions: string[] = [];
+    const bridge = createChatSdkBridge({
+      adapter,
+      supportsThreads: true,
+      botToken: 'test-token',
+    });
+    await bridge.setup({
+      onInbound: async () => {},
+      onInboundEvent: async () => {},
+      onMetadata: () => {},
+      onAction: (questionId, selectedOption, userId) => {
+        actions.push(`${questionId}:${selectedOption}:${userId}`);
+      },
+    });
+
+    await adapter.forwardEvent(makeInteraction('ncq:appr-1:0'));
+
+    expect(actions).toEqual(['appr-1:approve:user-1']);
+    await bridge.teardown();
+  });
+
+  it('falls back to the raw index when the render row is missing', async () => {
+    const adapter = makeGatewayAdapter();
+    const actions: string[] = [];
+    const bridge = createChatSdkBridge({
+      adapter,
+      supportsThreads: true,
+      botToken: 'test-token',
+    });
+    await bridge.setup({
+      onInbound: async () => {},
+      onInboundEvent: async () => {},
+      onMetadata: () => {},
+      onAction: (questionId, selectedOption, userId) => {
+        actions.push(`${questionId}:${selectedOption}:${userId}`);
+      },
+    });
+
+    await adapter.forwardEvent(makeInteraction('ncq:missing-appr:0'));
+
+    // Without render metadata the index itself is passed through; downstream
+    // will treat it as a non-approve value and reject.
+    expect(actions).toEqual(['missing-appr:0:user-1']);
+    await bridge.teardown();
+  });
+});

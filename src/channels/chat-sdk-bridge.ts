@@ -679,6 +679,15 @@ async function handleForwardedEvent(
       // Discord custom_id mirrors the new index-based encoding (see Button
       // construction). Decode back to the real option value for downstream.
       const selectedOption = resolveSelectedOption(render, tail, tail);
+      log.warn('Discord Gateway interaction debug', {
+        customId,
+        questionId,
+        tail,
+        renderFound: !!render,
+        renderTitle: render?.title,
+        renderOptionsCount: render?.options.length,
+        selectedOption,
+      });
       const cardTitle = render?.title ?? ((originalEmbeds[0]?.title as string) || '❓ Question');
       const matchedOpt = render?.options.find((o) => o.value === selectedOption);
       const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? customId;
