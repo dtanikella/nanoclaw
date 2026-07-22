@@ -10,6 +10,8 @@ An **agent group** is the workspace-and-identity boundary for a NanoClaw agent. 
 
 Multiple **messaging groups** (channels, DMs, webhooks) can be wired to a single agent group. The wiring decides whether those channels share one conversation, keep independent conversations, or stay fully isolated. This document describes how agent groups are modeled, created, stored, routed, configured, and operated.
 
+For the platform chat entity, see [docs/messaging-groups.md](messaging-groups.md). For the wiring layer that binds chats to agents, see [docs/messaging-group-agents.md](messaging-group-agents.md).
+
 ---
 
 ## 1. What an agent group is
@@ -634,6 +636,8 @@ For medium-depth guidance on adding providers, skills, MCP servers, channel adap
 
 ## 11. Related docs
 
+- [messaging-groups.md](messaging-groups.md) — the platform chat entity that routes to agent groups.
+- [messaging-group-agents.md](messaging-group-agents.md) — wiring chats to agents, engagement rules, and fan-out.
 - [isolation-model.md](isolation-model.md) — choosing between shared sessions, same-agent-separate-sessions, and separate agent groups.
 - [db-central.md](db-central.md) — full central DB schema.
 - [db-session.md](db-session.md) — per-session `inbound.db` + `outbound.db` split.

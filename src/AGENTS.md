@@ -21,4 +21,20 @@ Key files in this tree:
 - `src/cli/resources/groups.ts` — `ncl groups` CLI commands.
 - `src/modules/permissions/access.ts` — user/group access decisions.
 
+## Messaging groups and wirings
+
+For the platform chat entity and channel-side routing, see [docs/messaging-groups.md](../docs/messaging-groups.md). Relevant source files:
+
+- `src/db/messaging-groups.ts` — CRUD for `messaging_groups` and `messaging_group_agents`.
+- `src/channels/adapter.ts` — `ChannelAdapter` contract and `InboundEvent` shape.
+- `src/channels/channel-registry.ts` — adapter registration, lookup, and default declarations.
+- `src/channels/channel-defaults.ts` — wiring default resolution and thread-policy logic.
+- `src/platform-id.ts` — platform ID normalization for stored messaging group rows.
+- `src/router.ts` — inbound routing and fan-out to wired agents.
+- `src/session-manager.ts` — session resolution from wiring `session_mode`.
+- `src/cli/resources/messaging-groups.ts` — `ncl messaging-groups` CLI commands.
+- `src/cli/resources/wirings.ts` — `ncl wirings` CLI commands.
+
+For the wiring layer that binds chats to agents, see [docs/messaging-group-agents.md](../docs/messaging-group-agents.md).
+
 For how to extend agent groups with new providers, skills, MCP servers, channels, and runtime options, see [docs/agent-group-extensibility.md](../docs/agent-group-extensibility.md).

@@ -8,7 +8,8 @@ Tables directly owned or referenced here:
 
 - `agent_groups` — identity and folder mapping. CRUD in `src/db/agent-groups.ts`.
 - `container_configs` — per-group runtime config. CRUD in `src/db/container-configs.ts`.
-- `messaging_group_agents` — channel-to-agent wiring + engage rules. CRUD in `src/db/messaging-groups.ts`.
+- `messaging_groups` — platform chat / channel / DM registry. CRUD in `src/db/messaging-groups.ts`. See [docs/messaging-groups.md](../../docs/messaging-groups.md).
+- `messaging_group_agents` — channel-to-agent wiring + engage rules. CRUD in `src/db/messaging-groups.ts`. See [docs/messaging-group-agents.md](../../docs/messaging-group-agents.md).
 - `sessions` — runtime instances of an agent group. CRUD in `src/db/sessions.ts`.
 - `agent_destinations` — named delivery targets inside an agent group. CRUD in `src/db/agent-destinations.ts`.
 - `agent_group_members` — unprivileged membership gate. CRUD in `src/db/agent-group-members.ts`.
