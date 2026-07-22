@@ -530,6 +530,62 @@ describe('createChatSdkBridge — Discord Gateway interaction decoding', () => {
       },
     });
 
+    // Discord adapter >=4.29.0 appends the button value to custom_id with a
+    // newline delimiter (actionId + '\n' + value). The Gateway handler must
+    // strip that suffix before parsing our NanoClaw actionId.
+    await adapter.forwardEvent(makeInteraction('ncq:appr-1:0\n0'));
+
+    expect(actions).toEqual(['appr-1:approve:user-1']);
+    await bridge.teardown();
+  });
+
+  it('still decodes an unencoded custom_id from older Discord adapters', async () => {
+    const { createAgentGroup } = await import('../db/agent-groups.js');
+    const { createSession, createPendingApproval } = await import('../db/sessions.js');
+    const now = new Date().toISOString();
+    createAgentGroup({ id: 'ag-1', name: 'Agent', folder: 'agent', agent_provider: null, created_at: now });
+    createSession({
+      id: 'sess-1',
+      agent_group_id: 'ag-1',
+      messaging_group_id: null,
+      thread_id: null,
+      agent_provider: null,
+      status: 'active',
+      container_status: 'stopped',
+      last_active: now,
+      created_at: now,
+    });
+    createPendingApproval({
+      approval_id: 'appr-1',
+      request_id: 'appr-1',
+      session_id: 'sess-1',
+      action: 'cli_command',
+      payload: '{}',
+      created_at: now,
+      title: 'CLI: groups-create',
+      options_json: JSON.stringify([
+        { label: 'Approve', selectedLabel: 'Approved', value: 'approve', style: 'primary' },
+        { label: 'Reject', selectedLabel: 'Rejected', value: 'reject', style: 'danger' },
+        { label: 'Reject with reason…', selectedLabel: 'Rejected (awaiting reason)', value: 'reject_with_reason' },
+      ]),
+    });
+
+    const adapter = makeGatewayAdapter();
+    const actions: string[] = [];
+    const bridge = createChatSdkBridge({
+      adapter,
+      supportsThreads: true,
+      botToken: 'test-token',
+    });
+    await bridge.setup({
+      onInbound: async () => {},
+      onInboundEvent: async () => {},
+      onMetadata: () => {},
+      onAction: (questionId, selectedOption, userId) => {
+        actions.push(`${questionId}:${selectedOption}:${userId}`);
+      },
+    });
+
     await adapter.forwardEvent(makeInteraction('ncq:appr-1:0'));
 
     expect(actions).toEqual(['appr-1:approve:user-1']);
@@ -553,7 +609,7 @@ describe('createChatSdkBridge — Discord Gateway interaction decoding', () => {
       },
     });
 
-    await adapter.forwardEvent(makeInteraction('ncq:missing-appr:0'));
+    await adapter.forwardEvent(makeInteraction('ncq:missing-appr:0\n0'));
 
     // Without render metadata the index itself is passed through; downstream
     // will treat it as a non-approve value and reject.

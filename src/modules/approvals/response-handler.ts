@@ -51,12 +51,6 @@ export async function handleApprovalsResponse(payload: ResponsePayload): Promise
     return true;
   }
 
-  log.warn('Approval response debug', {
-    approvalId: approval.approval_id,
-    action: approval.action,
-    payloadValue: payload.value,
-    userId: namespacedUserId(payload),
-  });
   await handleRegisteredApproval(approval, payload.value, namespacedUserId(payload) ?? '');
   return true;
 }

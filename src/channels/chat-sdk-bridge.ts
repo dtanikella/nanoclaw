@@ -660,14 +660,19 @@ async function handleForwardedEvent(
       const interactionId = interaction.id as string;
       const interactionToken = interaction.token as string;
 
+      // Discord adapter >=4.29.0 encodes custom_id as `actionId + '\n' + value`.
+      // The Gateway path bypasses the adapter's decode, so strip the value
+      // suffix before parsing our own `ncq:<questionId>:<idx>` actionId.
+      const effectiveCustomId = customId?.split('\n')[0] ?? customId;
+
       // Parse the selected option from custom_id
       let questionId: string | undefined;
       let tail: string | undefined;
-      if (customId?.startsWith('ncq:')) {
-        const colonIdx = customId.indexOf(':', 4); // after "ncq:"
+      if (effectiveCustomId?.startsWith('ncq:')) {
+        const colonIdx = effectiveCustomId.indexOf(':', 4); // after "ncq:"
         if (colonIdx !== -1) {
-          questionId = customId.slice(4, colonIdx);
-          tail = customId.slice(colonIdx + 1);
+          questionId = effectiveCustomId.slice(4, colonIdx);
+          tail = effectiveCustomId.slice(colonIdx + 1);
         }
       }
 
@@ -679,18 +684,9 @@ async function handleForwardedEvent(
       // Discord custom_id mirrors the new index-based encoding (see Button
       // construction). Decode back to the real option value for downstream.
       const selectedOption = resolveSelectedOption(render, tail, tail);
-      log.warn('Discord Gateway interaction debug', {
-        customId,
-        questionId,
-        tail,
-        renderFound: !!render,
-        renderTitle: render?.title,
-        renderOptionsCount: render?.options.length,
-        selectedOption,
-      });
       const cardTitle = render?.title ?? ((originalEmbeds[0]?.title as string) || '❓ Question');
       const matchedOpt = render?.options.find((o) => o.value === selectedOption);
-      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? customId;
+      const selectedLabel = matchedOpt?.selectedLabel ?? selectedOption ?? effectiveCustomId;
       try {
         await fetch(`https://discord.com/api/v10/interactions/${interactionId}/${interactionToken}/callback`, {
           method: 'POST',
