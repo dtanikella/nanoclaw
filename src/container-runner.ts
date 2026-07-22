@@ -20,6 +20,7 @@ import {
   GROUPS_DIR,
   ONECLI_API_KEY,
   ONECLI_URL,
+  OUTPUT_TEMPLATES_DIR,
   TIMEZONE,
 } from './config.js';
 import { materializeContainerJson } from './container-config.js';
@@ -343,6 +344,11 @@ export function buildMounts(
   const skillsSrc = path.join(projectRoot, 'container', 'skills');
   if (fs.existsSync(skillsSrc)) {
     mounts.push({ hostPath: skillsSrc, containerPath: '/app/skills', readonly: true });
+  }
+
+  // Shared output-formatting templates — read-only, available to every agent.
+  if (fs.existsSync(OUTPUT_TEMPLATES_DIR)) {
+    mounts.push({ hostPath: OUTPUT_TEMPLATES_DIR, containerPath: '/app/output-templates', readonly: true });
   }
 
   // Additional mounts from container config

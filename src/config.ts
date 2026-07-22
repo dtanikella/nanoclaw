@@ -63,6 +63,14 @@ export const TEMPLATES_DIR = process.env.NANOCLAW_TEMPLATES_DIR
   ? path.resolve(process.env.NANOCLAW_TEMPLATES_DIR)
   : path.resolve(PROJECT_ROOT, 'templates');
 
+// Shared output-formatting templates. Mounted read-only into every agent
+// container at /app/output-templates so agents can standardize recurring
+// outputs (e.g. morning paper, daily briefings). Override via
+// NANOCLAW_OUTPUT_TEMPLATES_DIR; local path only.
+export const OUTPUT_TEMPLATES_DIR = process.env.NANOCLAW_OUTPUT_TEMPLATES_DIR
+  ? path.resolve(process.env.NANOCLAW_OUTPUT_TEMPLATES_DIR)
+  : path.resolve(PROJECT_ROOT, 'output-templates');
+
 // Per-checkout image tag so two installs on the same host don't share
 // `nanoclaw-agent:latest` and clobber each other on rebuild.
 export const CONTAINER_IMAGE_BASE = process.env.CONTAINER_IMAGE_BASE || getContainerImageBase(PROJECT_ROOT);
